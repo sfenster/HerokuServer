@@ -1,4 +1,4 @@
-from flask import Flask,request,json, jsonify
+from flask import Flask,request,json,jsonify
 import os
 
 app = Flask(__name__)
@@ -44,6 +44,7 @@ def respond():
 @app.route('/post/', methods=['POST'])
 def post_something():
     param = request.form.get('name')
+    print(request.form.get('name'))
     print(param)
     # You can add the test cases you made in the previous function, but in our case here you are just testing the POST functionality
     if param:
