@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return 'Webhooks with Python'
+    return 'Webhooks with Python - on HEROKU!'
 
 @app.route('/githubIssue',methods=['POST'])
 def githubIssue():
