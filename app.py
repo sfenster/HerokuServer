@@ -1,11 +1,13 @@
-from flask import Flask,request,json,jsonify
+from flask import Flask,request,json,jsonify,render_template
 import os
 from rq import Queue
+from rq.job import Job
 from worker import conn
 from utils import count_words_at_url
 
 q = Queue(connection=conn)
 result = q.enqueue(count_words_at_url, 'http://heroku.com')
+
 
 app = Flask(__name__)
 env_config = os.getenv("APP_SETTINGS", "config.DevelopmentConfig")
@@ -62,7 +64,46 @@ def post_something():
         return jsonify({
             "ERROR": "no name found, please send a name."
         })
+@app.route('/redis/', methods=['GET', 'POST'])
+def testredis():
+        return render_template('index.html')
 
+@app.route('/start', methods=['POST'])
+def get_counts():
+    # this import solves a rq bug which currently exists
+    #from app import count_and_save_words
+
+    # get url
+    data = json.loads(request.data.decode())
+    url = data["url"]
+    print("URL from form = " + url)
+    if not url[:8].startswith(('https://', 'http://')):
+        url = 'http://' + url
+    # start job
+    job = q.enqueue_call(
+        func=count_words_at_url, args=(url,), result_ttl=5000
+    )
+    # return created job id
+    return job.get_id()
+
+
+@app.route("/results/<job_key>", methods=['GET'])
+def get_results(job_key):
+
+    job = Job.fetch(job_key, connection=conn)
+
+    if job.is_finished:
+        #result = Result.query.filter_by(id=job.result).first()
+        #results = sorted(
+        #    result.result_no_stop_words.items(),
+        #    key=operator.itemgetter(1),
+        #    reverse=True
+        #)[:10]
+        #return jsonify(results)
+        print("Job fetch result: " + str(job.result))
+        return str(job.result)
+    else:
+        return "Nay!", 202
 
 if __name__ == '__main__':
     app.run(debug=True)
