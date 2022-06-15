@@ -1,9 +1,14 @@
 from flask import Flask,request,json,jsonify,render_template
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import os
+import config
 from rq import Queue
 from rq.job import Job
 from worker import conn
 from utils import count_words_at_url
+from werkzeug.utils import import_string
+
 
 q = Queue(connection=conn)
 result = q.enqueue(count_words_at_url, 'http://heroku.com')
@@ -12,11 +17,21 @@ result = q.enqueue(count_words_at_url, 'http://heroku.com')
 app = Flask(__name__)
 env_config = os.getenv("APP_SETTINGS", "config.DevelopmentConfig")
 app.config.from_object(env_config)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+
+from models import Result
 
 @app.route('/')
 def hello():
+    debug_status = app.config.get('DEBUG')
+    dev_status = app.config.get('DEVELOPMENT')
+    config_flaskenv = app.config.get('FLASK_ENV')
     secret_key = app.config.get("SECRET_KEY")
-    return f"The configured secret key is {secret_key}."
+    return f"The config DEBUG status is: {debug_status}."
+    #return f"The configured secret key is {secret_key}."
 
 @app.route('/githubIssue',methods=['POST'])
 def githubIssue():
@@ -48,6 +63,17 @@ def respond():
 
     # Return the response in json format
     return jsonify(response)
+
+
+@app.route('/name')
+def return_name():
+    return "Hello World!"
+
+
+@app.route('/name/<name>')
+def hello_name(name):
+    return "Hello {}!".format(name)
+
 
 @app.route('/post/', methods=['POST'])
 def post_something():
@@ -106,4 +132,4 @@ def get_results(job_key):
         return "Nay!", 202
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run
