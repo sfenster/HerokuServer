@@ -13,6 +13,8 @@ psycopg2 = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
 "flask.cli" = "*"
+beautifulsoup4 = "*"
+nltk = "*"
 
 [dev-packages]
 
