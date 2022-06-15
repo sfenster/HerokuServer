@@ -9,6 +9,7 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEVELOPMENT = False
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL').replace("://", "ql://", 1)
 
 class StagingConfig(Config):
     DEVELOPMENT = True
