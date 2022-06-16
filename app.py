@@ -71,21 +71,7 @@ def count_and_save_words(url):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    results = {}
-    if request.method == "POST":
-        # this import solves a rq bug which currently exists
-        from app import count_and_save_words
-
-        # get url that the person has entered
-        url = request.form['url']
-        if not url[:8].startswith(('https://', 'http://')):
-            url = 'http://' + url
-        job = q.enqueue_call(
-            func=count_and_save_words, args=(url,), result_ttl=5000
-        )
-        print(job.get_id())
-
-    return render_template('index.html', results=results)
+    return render_template('index.html')
 
 
 
@@ -147,24 +133,20 @@ def post_something():
             "ERROR": "no name found, please send a name."
         })
 
-@app.route('/redis/', methods=['GET', 'POST'])
-def testredis():
-        return render_template('index.html')
 
 @app.route('/start', methods=['POST'])
 def get_counts():
     # this import solves a rq bug which currently exists
-    #from app import count_and_save_words
+    from app import count_and_save_words
 
     # get url
     data = json.loads(request.data.decode())
     url = data["url"]
-    print("URL from form = " + url)
     if not url[:8].startswith(('https://', 'http://')):
         url = 'http://' + url
     # start job
     job = q.enqueue_call(
-        func=count_words_at_url, args=(url,), result_ttl=5000
+        func=count_and_save_words, args=(url,), result_ttl=5000
     )
     # return created job id
     return job.get_id()
@@ -185,6 +167,8 @@ def get_results(job_key):
         return jsonify(results)
     else:
         return "Nay!", 202
+
+
 
 if __name__ == '__main__':
     app.run

@@ -42,7 +42,6 @@
         // fire another request
         $http.get('/results/'+jobID).
           success(function(data, status, headers, config) {
-            $log.log('get success');
             if(status === 202) {
               $log.log(data, status);
             } else if (status === 200){
@@ -58,7 +57,6 @@
             timeout = $timeout(poller, 2000);
           }).
           error(function(error) {
-            $log.log('get failure');
             $log.log(error);
             $scope.loading = false;
             $scope.submitButtonText = "Submit";
