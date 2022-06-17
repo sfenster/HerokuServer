@@ -40,7 +40,7 @@ def count_and_save_words(url):
         return {"error": errors}
 
     # text processing
-    raw = BeautifulSoup(r.text).get_text()
+    raw = BeautifulSoup(r.text, 'html.parser').get_text()
     nltk.data.path.append('./nltk_data/')  # set the path
     tokens = nltk.word_tokenize(raw)
     text = nltk.Text(tokens)
@@ -157,8 +157,11 @@ def get_results(job_key):
 
     job = Job.fetch(job_key, connection=conn)
 
+    print("Job is finished: ", job.is_finished)
     if job.is_finished:
+        print("result : ", Result.query.filter_by(id=job.result).first())
         result = Result.query.filter_by(id=job.result).first()
+        print("Result items: ", list(result.result_no_stop_words.items())[:10])
         results = sorted(
             result.result_no_stop_words.items(),
             key=operator.itemgetter(1),
