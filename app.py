@@ -9,6 +9,7 @@ import time
 from flask import Flask,request,json,jsonify,render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+import redis
 from redis import Redis
 from rq import Queue, Worker, Retry
 from rq.job import Job
