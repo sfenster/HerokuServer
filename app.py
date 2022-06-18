@@ -23,9 +23,10 @@ from bs4 import BeautifulSoup
 redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
 urllib.parse.uses_netloc.append('redis')
 url = urllib.parse.urlparse(redis_url)
-conn = Redis(host=url.hostname, port=url.port, db=0, password=url.password)
+#conn = Redis(host=url.hostname, port=url.port, db=0, password=url.password)
+conn = redis.from_url(redis_url)
 q = Queue(connection=conn)
-#result = q.enqueue(count_words_at_url, 'http://heroku.com')
+
 
 
 app = Flask(__name__)
