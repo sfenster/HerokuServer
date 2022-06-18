@@ -1,2 +1,2 @@
 web: gunicorn app:app
-worker: rqworker --config settings --with-scheduler
+worker: rqworker --with-scheduler

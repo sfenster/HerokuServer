@@ -3,6 +3,7 @@ import requests
 import operator
 import re
 import nltk
+import urllib.parse
 from datetime import datetime, timedelta
 import time
 from flask import Flask,request,json,jsonify,render_template
@@ -11,14 +12,19 @@ from flask_migrate import Migrate
 from redis import Redis
 from rq import Queue, Worker, Retry
 from rq.job import Job
-from worker import conn
+#from worker import conn
 import utils
 from stop_words import stops
 from collections import Counter
 from bs4 import BeautifulSoup
 
 #q = Queue(connection=conn)
-q = Queue(connection=Redis())
+
+redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
+urllib.parse.uses_netloc.append('redis')
+url = urllib.parse.urlparse(redis_url)
+conn = Redis(host=url.hostname, port=url.port, db=0, password=url.password)
+q = Queue(connection=conn)
 #result = q.enqueue(count_words_at_url, 'http://heroku.com')
 
 
