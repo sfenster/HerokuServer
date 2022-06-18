@@ -3,19 +3,22 @@ import requests
 import operator
 import re
 import nltk
+from datetime import datetime, timedelta
+import time
 from flask import Flask,request,json,jsonify,render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from rq import Queue
+from redis import Redis
+from rq import Queue, Worker, Retry
 from rq.job import Job
 from worker import conn
-from utils import count_words_at_url
+import utils
 from stop_words import stops
 from collections import Counter
 from bs4 import BeautifulSoup
 
-
-q = Queue(connection=conn)
+#q = Queue(connection=conn)
+q = Queue(connection=Redis())
 #result = q.enqueue(count_words_at_url, 'http://heroku.com')
 
 
@@ -72,6 +75,13 @@ def count_and_save_words(url):
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
+
+@app.route('/tasks', methods=['GET'])
+def queue_tasks():
+    job = q.enqueue(utils.print_task, 5, retry=Retry(max=2))
+    job2 = q.enqueue_in(timedelta(seconds=10), utils.print_numbers, 5)
+    # return created job id
+    return "Job IDs: " + str(job.get_id()) + ", " + str(job2.get_id())
 
 
 
