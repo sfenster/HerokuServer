@@ -17,8 +17,8 @@ from stop_words import stops
 from collections import Counter
 from bs4 import BeautifulSoup
 
-q = Queue(connection=conn)
-#q = Queue(connection=Redis())
+#q = Queue(connection=conn)
+q = Queue(connection=Redis())
 #result = q.enqueue(count_words_at_url, 'http://heroku.com')
 
 
