@@ -1,6 +1,6 @@
 import os
 
-REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
+REDIS_URL = 'redis://:pc3040d94dd3cc01088d10302cb0d8f9d85ef924d0ec28ac50227ef9115de5b5f@ec2-3-213-255-205.compute-1.amazonaws.com:26589'
 
 # You can also specify the Redis DB to use
 # REDIS_HOST = 'redis.example.com'
