@@ -1,0 +1,13 @@
+{
+  "name": "test-webhooks",
+  "type": "webhook",
+  "actions": [
+    {
+      "type": "email",
+      "action_data": {
+        "subject": "Testing webhooks workflow",
+        "recipient": "abhishek@learnaws.org"
+      }
+    }
+  ]
+}

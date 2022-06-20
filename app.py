@@ -15,7 +15,9 @@ import utils
 from stop_words import stops
 from collections import Counter
 from bs4 import BeautifulSoup
+from pathlib import Path
 
+FILE_DIR = Path(__file__).resolve().parent
 redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
 conn = redis.from_url(redis_url)
 q = Queue(connection=conn)
@@ -72,9 +74,29 @@ def count_and_save_words(url):
         return {"error": errors}
 
 
+def run_workflow(workflow, webhook_json):
+    #Get path of json workflow file matching webhook path, load file, get actions, call enqueue_action() to run
+    pass
+
+def enqueue_action():
+    #format dict with webhook data and action step data, enqueue in Redis
+    pass
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
+
+
+@app.route('/webhook/<path:path>', methods=['GET', 'POST'])
+def webhooks_trigger(path):
+    config_path = FILE_DIR / f"workflows/{path}.json"
+    if config_path.is_file():
+        run_workflow(path, request.json)
+        return f"Success! We have received the following JSON post: \n{request.json}"
+
+    return f"Workflow: {config_path} not found"
+
+
 
 @app.route('/tasks', methods=['GET'])
 def queue_tasks():
