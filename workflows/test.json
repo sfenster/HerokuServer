@@ -8,6 +8,12 @@
         "subject": "Testing webhooks workflow",
         "recipient": "abhishek@learnaws.org"
       }
+    },
+    {
+      "type": "registration",
+      "action_data": {
+        "platform": "swoogo"
+      }
     }
   ]
 }

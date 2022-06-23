@@ -12,6 +12,7 @@ import redis
 from rq import Queue, Worker, Retry
 from rq.job import Job
 import utils
+from handler import run_actions
 from stop_words import stops
 from collections import Counter
 from bs4 import BeautifulSoup
@@ -74,13 +75,33 @@ def count_and_save_words(url):
         return {"error": errors}
 
 
-def run_workflow(workflow, webhook_json):
+def run_workflow(name, webhook_data):
     #Get path of json workflow file matching webhook path, load file, get actions, call enqueue_action() to run
-    pass
+    workflow_path = FILE_DIR / f"workflows/{name}.json"
+    with open(workflow_path) as f:
+        config = json.load(f)
 
-def enqueue_action():
+    actions = config["actions"]
+    for action in actions:
+        #enqueue_action(action=action, webhook_data=webhook_data)
+        job = q.enqueue_call(
+            func=run_actions, args=(action, webhook_data,), result_ttl=5000
+        )
+        # return created job id
+        print (job.get_id())
+
+
+def enqueue_action(action, webhook_data):
     #format dict with webhook data and action step data, enqueue in Redis
-    pass
+    message_data = {
+        "webhook_data": webhook_data,
+        "action": action,
+    }
+    job = q.enqueue_call(
+        func=run_actions, args=(message_data,), result_ttl=5000
+    )
+    # return created job id
+    print (job.get_id())
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -92,10 +113,20 @@ def webhooks_trigger(path):
     config_path = FILE_DIR / f"workflows/{path}.json"
     if config_path.is_file():
         run_workflow(path, request.json)
-        return f"Success! We have received the following JSON post: \n{request.json}"
+        return f"Success! We have found the workflow '{path}' and received the following JSON post: \n{request.json}"
 
     return f"Workflow: {config_path} not found"
 
+
+@app.route("/jobs/<job_key>", methods=['GET'])
+def get_results(job_key):
+        job = Job.fetch(job_key, connection=conn)
+
+        print("Job is finished: ", job.is_finished)
+        if job.is_finished:
+            return jsonify(job.result)
+        else:
+            return "Job is not finished", 202
 
 
 @app.route('/tasks', methods=['GET'])
@@ -185,7 +216,7 @@ def get_counts():
 
 
 @app.route("/results/<job_key>", methods=['GET'])
-def get_results(job_key):
+def get_count_results(job_key):
 
     job = Job.fetch(job_key, connection=conn)
 
