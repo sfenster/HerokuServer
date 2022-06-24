@@ -1,7 +1,8 @@
 import json
 import requests
+from flask import jsonify
 from pathlib import Path
-from actions.swoogo_api import add_registrant
+from actions import swoogo_api
 
 #HANDLER.RUN_ACTIONS will be the job enqueued in all cases.
 #RUN_ACTIONS will be passed both the webhook info and action step info, and determine which APIs to call
@@ -11,7 +12,7 @@ def run_actions(action, webhook_data):
     #e.g., run_add_registrant_action()
 
     if action['type'] == "registration":
-        run_add_registrant_action(action['action_data'], webhook_data)
+        resp = run_add_registrant_action(action['action_data'], webhook_data)
 
 
     return {
@@ -19,9 +20,13 @@ def run_actions(action, webhook_data):
         "headers": {
             "Content-Type": "application/json",
         },
-        "body": {"action" : action, "webhook_data": webhook_data, },
+        "body": {"action" : action, "webhook_data": webhook_data, "auth":resp},
     }
 
 def run_add_registrant_action(action_data, webhook_data):
     #Use passed data to determine whose APIs to call, then add registrant.
-    pass
+    if action_data['platform']=='swoogo':
+        resp = swoogo_api.add_registrant(action_data, webhook_data)
+    else:
+        resp = "No add registrant action found"
+    return resp
