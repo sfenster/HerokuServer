@@ -3,16 +3,22 @@
   "type": "webhook",
   "actions": [
     {
-      "type": "email",
-      "action_data": {
-        "subject": "Testing webhooks workflow",
-        "recipient": "abhishek@learnaws.org"
-      }
-    },
-    {
       "type": "registration",
       "action_data": {
-        "platform": "swoogo"
+        "required_fields": [
+          "event_id",
+          "email",
+          "platform"
+        ],
+        "optional_fields": [
+          "first_name",
+          "last_name",
+          "registration_dtatus",
+          "po_number",
+          "discount_code",
+          "payment_method",
+          "send_email"
+        ]
       }
     }
   ]

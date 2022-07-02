@@ -13,19 +13,17 @@ def run_actions(action, webhook_data):
 
     if action['type'] == "registration":
         resp = run_add_registrant_action(action['action_data'], webhook_data)
-
-
-    return {
-        "statusCode": 200,
-        "headers": {
-            "Content-Type": "application/json",
-        },
-        "body": {"action" : action, "webhook_data": webhook_data, "auth":resp},
-    }
+        return {
+            #"statusCode": resp['status'],
+            "headers": {
+                "Content-Type": "application/json",
+            },
+            "body": {"action" : action, "webhook_data": webhook_data, "response": resp},
+        }
 
 def run_add_registrant_action(action_data, webhook_data):
-    #Use passed data to determine whose APIs to call, then add registrant.
-    if action_data['platform']=='swoogo':
+    #Use passed data to determine whose APIs to call, ensure required fields exist, then add registrant.
+    if webhook_data['platform']=='swoogo':
         resp = swoogo_api.add_registrant(action_data, webhook_data)
     else:
         resp = "No add registrant action found"

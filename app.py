@@ -41,14 +41,31 @@ def run_workflow(name, webhook_data):
         config = json.load(f)
 
     actions = config["actions"]
+    enqueued_jobs = []
     for action in actions:
         #enqueue_action(action=action, webhook_data=webhook_data)
-        print (action)
+        #print (action)
+        rf = action['action_data']['required_fields'] if 'required_fields' in action['action_data'] else {}
+        of = action['action_data']['optional_fields'] if 'optional_fields' in action['action_data'] else {}
+
+        for f in rf:
+            if f not in webhook_data:
+                print(f"ERROR: missing required field {f}; {action['type']} action not enqueued.")
+                continue
+        for d in webhook_data:
+            if d not in of and d not in rf:
+                print(f"ERROR: {d} is not an allowed field; {action['type']} action not enqueued.")
+                continue
+
         job = q.enqueue_call(
             func=run_actions, args=(action, webhook_data,), result_ttl=5000
         )
         # return created job id
-        print (job.get_id())
+        #print (job.get_id())
+        enqueued_jobs.append({action['type']:job.get_id()})
+    for job in enqueued_jobs: print(f"JOB: {job}")
+    return {"enqueued_jobs": enqueued_jobs}
+
 
 
 def enqueue_action(action, webhook_data):
@@ -72,12 +89,15 @@ def enqueue_action(action, webhook_data):
 def webhooks_trigger(path):
     config_path = FILE_DIR / f"workflows/{path}.json"
     if config_path.is_file():
-        if "json" in request.headers['Content-Type']:
-            run_workflow(path, request.json)
-            return f"Success! We have found the workflow '{path}' and received the following JSON post: \n{request.json} \n"
+        type = request.headers['Content-Type'] if 'Content-Type' in request.headers else ""
+        if "json" in type:
+            resp = run_workflow(path, request.json)
+            return f"Success! We have found the workflow '{path}' and received the following JSON post: \n{request.json} \n \
+                Webhook response = {resp}"
         else:
-            run_workflow(path, request.args)
-            return f"Success! We have found the workflow '{path}' and received the following post parameters: \n{request.args}"
+            resp = run_workflow(path, request.args)
+            return f"Success! We have found the workflow '{path}' and received the following post parameters: \n{request.args} \n \
+                Webhook response = {resp}"
 
     return f"Workflow: {config_path} not found"
 
@@ -91,6 +111,27 @@ def get_results(job_key):
             return jsonify(job.result)
         else:
             return "Job is not finished", 202
+
+@app.route('/swoogo', methods=['GET'])
+def get_registrants():
+
+    auth_url = "https://www.swoogo.com/api/v1/oauth2/token.json"
+    b64_key_secret = "UlR3TTJ5SlRDTjFCaWg5bmxLcEhoOnY3NDJkWVk5d1BKbGVrU2d2VlJZSmFQYTBoWGNsdkdpZnZCcElBREdKcA=="
+    auth_headers = {'Content-Type':'application/x-www-form-urlencoded', 'Authorization':'Basic ' + b64_key_secret}
+    auth_data = {'grant_type':'client_credentials'}
+
+    auth_resp = requests.post(url=auth_url, headers=auth_headers, data=auth_data).json()
+
+    req_url = 'https://www.swoogo.com/api/v1/registrants.json'
+    req_headers = {"Authorization": f"Bearer {auth_resp['access_token']}"}
+    id = request.args.get("id", None)
+    if id:
+        req_params = {'event_id':id}
+        response = requests.get(url=req_url, headers=req_headers, params=req_params).json()
+    else:
+        response = "Please provide an Event ID."
+
+    return response
 
 
 
