@@ -42,6 +42,7 @@ def run_workflow(name, webhook_data):
 
     actions = config["actions"]
     enqueued_jobs = []
+    errors = []
     for action in actions:
         #enqueue_action(action=action, webhook_data=webhook_data)
         #print (action)
@@ -51,11 +52,20 @@ def run_workflow(name, webhook_data):
         for f in rf:
             if f not in webhook_data:
                 print(f"ERROR: missing required field {f}; {action['type']} action not enqueued.")
-                continue
+                errors.append({action['type']: f"ERROR: missing required field '{f}'; '{action['type']}' action not enqueued."})
+                break
+        else:
+            continue
+        break
+
         for d in webhook_data:
             if d not in of and d not in rf:
                 print(f"ERROR: {d} is not an allowed field; {action['type']} action not enqueued.")
-                continue
+                errors.append({action['type']: f"ERROR: '{d}' is not an allowed field; '{action['type']}' action not enqueued."})
+                break
+        else:
+            continue
+        break
 
         job = q.enqueue_call(
             func=run_actions, args=(action, webhook_data,), result_ttl=5000
@@ -64,7 +74,7 @@ def run_workflow(name, webhook_data):
         #print (job.get_id())
         enqueued_jobs.append({action['type']:job.get_id()})
     for job in enqueued_jobs: print(f"JOB: {job}")
-    return {"enqueued_jobs": enqueued_jobs}
+    return {"enqueued_jobs": enqueued_jobs, "errors": errors}
 
 
 
