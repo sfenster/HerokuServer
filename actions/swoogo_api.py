@@ -7,7 +7,7 @@ load_dotenv()
 
 def add_registrant(action_data, webhook_data):
     auth_url = "https://www.swoogo.com/api/v1/oauth2/token.json"
-    b64_key_secret = os.getenv("swoogo_b64_key_secret")
+    b64_key_secret = os.getenv("SWOOGO_B64_KEY_SECRET")
     auth_headers = {'Content-Type':'application/x-www-form-urlencoded', 'Authorization':'Basic ' + b64_key_secret}
     auth_data = {'grant_type':'client_credentials'}
 
