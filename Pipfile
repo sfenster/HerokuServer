@@ -16,6 +16,9 @@ flask-migrate = "*"
 beautifulsoup4 = "*"
 nltk = "*"
 python-dotenv = "*"
+flask-wtf = "*"
+flask-login = "*"
+email-validator = "*"
 
 [dev-packages]
 
