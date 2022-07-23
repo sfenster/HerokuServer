@@ -3,6 +3,7 @@ import requests
 import operator
 import re
 import nltk
+import logging
 from datetime import datetime, timedelta
 import time
 from flask import Flask,request,json,jsonify,render_template,flash,redirect,url_for
