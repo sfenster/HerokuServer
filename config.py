@@ -6,6 +6,7 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET_KEY = os.getenv("SECRET_KEY", "this-is-the-default-key")
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    POSTS_PER_PAGE = 10
 
 class ProductionConfig(Config):
     DEVELOPMENT = False

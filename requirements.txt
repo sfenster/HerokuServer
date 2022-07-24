@@ -1,4 +1,4 @@
-alembic==1.8.0
+alembic==1.8.1
 async-timeout==4.0.2
 beautifulsoup4==4.11.1
 certifi==2022.6.15
@@ -7,8 +7,10 @@ click==8.1.3
 datadispatch==1.0.0
 Deprecated==1.2.13
 dnspython==2.2.1
+dominate==2.6.0
 email-validator==1.2.1
 Flask==2.1.0
+Flask-Bootstrap==3.3.7.1
 Flask-CLI==0.4.0
 Flask-Login==0.6.1
 Flask-Migrate==3.1.0
@@ -18,7 +20,7 @@ greenlet==1.1.2
 gunicorn==20.1.0
 idna==3.3
 importlib-metadata==4.12.0
-importlib-resources==5.8.0
+importlib-resources==5.9.0
 itsdangerous==2.1.2
 Jinja2==3.1.2
 joblib==1.1.0
@@ -38,7 +40,8 @@ SQLAlchemy==1.4.39
 tqdm==4.64.0
 typing_extensions==4.3.0
 urllib3==1.26.10
+visitor==0.1.3
 Werkzeug==2.1.2
 wrapt==1.14.1
 WTForms==3.0.1
-zipp==3.8.0
+zipp==3.8.1

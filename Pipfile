@@ -19,6 +19,8 @@ python-dotenv = "*"
 flask-wtf = "*"
 flask-login = "*"
 email-validator = "*"
+flask-bootstrap = "*"
+werkzeug = "==2.1.2"
 
 [dev-packages]
 
